@@ -1,3 +1,3 @@
 Manifest-Version: 1.0
-Main-Class: uiowa.cs3010.maze6.Main
+Main-Class: uiowa.cs3010.maze6.KMain
 
