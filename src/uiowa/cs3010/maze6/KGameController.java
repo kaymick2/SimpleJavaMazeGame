@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import java.util.List;
 
 // KMain class to control the KMaze game
@@ -47,15 +48,23 @@ public class KGameController extends JFrame {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (gameRunning) {
+                    System.out.println(e.getKeyCode());
                     if (e.getKeyCode() == KeyEvent.VK_O) {
                         solutionPath = KMaze.findSolutionPath(KPlayer.getX(), KPlayer.getY(), KMaze.getExitPosition());
                         mazePanel.repaint();
-                    } else {
-                        handlePlayerMovement(e);
+                    } else if (e.getKeyCode()==KeyEvent.VK_ESCAPE){
+                        if (gameTimer.isRunning()){
+                            gameTimer.stop();
+                        }
+                        if (!gameTimer.isRunning()){
+                            gameTimer.start();
+                        }
                     }
+                    else {
+                        handlePlayerMovement(e);
                 }
             }
-        });
+        }});
 
         // Initialize and add the status label
         statusLabel = new JLabel("time left " + timeRemaining + " S");
@@ -71,11 +80,19 @@ public class KGameController extends JFrame {
                 if (timeRemaining <= 0) {
                     endGame("womp womp game over");
                 }
-            }
-        });
+        }});
         gameTimer.start();
     }
-
+    private void pauseGame(KeyEvent e){
+        if (e.getKeyCode()==27){
+            if (gameTimer.isRunning()){
+                gameTimer.stop();
+            }
+            if (!gameTimer.isRunning()){
+                gameTimer.start();
+            }
+        }
+    }
     // Handle KPlayer movement based on key press
     private void handlePlayerMovement(KeyEvent e) {
         switch (e.getKeyCode()) {

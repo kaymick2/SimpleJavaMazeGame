@@ -21,6 +21,12 @@ public class KMain extends JFrame{
                 game.setVisible(true);
             }
         });
+        cjDifficulty.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                GameManager game2=new GameManager();
+            }
+        });
         difficultySelect.add(cjDifficulty);
         difficultySelect.add(kDifficulty);
         difficultySelect.pack();

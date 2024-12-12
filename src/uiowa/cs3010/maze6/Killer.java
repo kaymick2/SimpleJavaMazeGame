@@ -1,74 +1,42 @@
+package uiowa.cs3010.maze6;
+
 import java.util.List;
 
-// Killer.java - Add increaseAggression method for dynamic difficulty
 public class Killer {
-    private int x, y;
-    private Maze maze;
-    private Player player;
-    private AStar aStar;
-    private boolean aggressiveMode = false;  // Killer becomes more aggressive after rescuing bystanders
+    private int x, y; // Coordinates of the killer in the maze
 
-    public Killer(Maze maze, Player player) {
-        this.maze = maze;
-        this.player = player;
-        this.aStar = new AStar(maze);  // Pass only maze to the AStar constructor
-        this.x = maze.getGrid().length - 1;  // Start position
-        this.y = maze.getGrid()[0].length - 1;  // Start position
+    // Constructor to initialize the killer's starting position
+    public Killer(int startX, int startY) {
+        this.x = startX; // Set the initial x-coordinate
+        this.y = startY; // Set the initial y-coordinate
     }
 
-    public void move() {
-        List<Node> path = aStar.findPath(x, y, player.getX(), player.getY());
-        if (!path.isEmpty()) {
-            Node nextMove = path.get(1);  // Move to the next step in the path
-            this.x = nextMove.x;
-            this.y = nextMove.y;
-        }
-
-        // If aggressive mode is enabled, the killer moves faster (move two steps instead of one)
-        if (aggressiveMode && path.size() > 2) {
-            Node nextMove = path.get(2);  // Move an extra step to increase difficulty
-            this.x = nextMove.x;
-            this.y = nextMove.y;
-        }
-    }
-//    public void move() {
-//        List<Node> path = aStar.findPath(x, y, player.getX(), player.getY());
-//        if (path.size() > 1) {
-//            Node nextMove = path.get(1);
-//            this.x = nextMove.x;
-//            this.y = nextMove.y;
-//        }
-//        if (aggressiveMode && path.size() > 2) {
-//            Node nextMove = path.get(2);
-//            this.x = nextMove.x;
-//            this.y = nextMove.y;
-//        }
-//    }
-
-    // This method will be called to increase killer's aggression when a bystander is rescued
-    public void increaseAggression() {
-        aggressiveMode = true;  // Enable faster movement after a bystander is rescued
-        System.out.println("The killer becomes more aggressive!");
-    }
-
-    public void displayProximityAlert() {
-        double distance = Math.sqrt(Math.pow(x - player.getX(), 2) + Math.pow(y - player.getY(), 2));
-        if (distance <= 1) {
-            System.out.println("The sound of breathing grows louder.");
-        } else if (distance <= 2) {
-            System.out.println("A door creaks open nearby.");
-        } else if (distance <= 3) {
-            System.out.println("You hear faint footsteps behind you.");
-        } else {
-            System.out.println("All is quiet.");
-        }
-    }
-
+    // Getter method for the x coordinate of the killer
     public int getX() {
         return x;
     }
 
+    // Getter method for the y coordinate of the killer
     public int getY() {
         return y;
+    }
+
+    // Method to move the killer to a new position (newX, newY)
+    public void move(int newX, int newY) {
+        this.x = newX; // Update the x-coordinate
+        this.y = newY; // Update the y-coordinate
+    }
+
+    // Method for the killer to chase the player
+    public void chasePlayer(int playerX, int playerY, char[][] maze) {
+        // Use A* algorithm to find the path from the killer to the player
+        List<Node> path = AStarAlgorithm.findPath(x, y, playerX, playerY, maze);
+
+        // If a valid path exists (size > 1 to ensure there's a next step to take)
+        if (path != null && path.size() > 1) {
+            Node nextMove = path.get(1); // Get the next step in the path
+            move(nextMove.getX(), nextMove.getY()); // Move the killer to that position
+            SoundManager.playSound("sounds/footstep.wav"); // Trigger killer move sound
+        }
     }
 }

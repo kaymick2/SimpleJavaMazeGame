@@ -1,7 +1,5 @@
 package uiowa.cs3010.maze6;
-
 import java.util.*;
-
 // Class representing the maze
 public class KMaze {
     private final int[][] grid; // 2D array representing the maze grid
@@ -30,7 +28,7 @@ public class KMaze {
             KNode playerSpawn = getPlayerSpawn(); // Get the player's spawn position
             KNode exit = getExitPosition(); // Get the exit position
 
-            // Carve a path from the player spawn to the exit
+            // Carve a path from the player spawn to the exit using BFS
             Set<KNode> essentialCells = new HashSet<>(carvePathBFS(playerSpawn, exit));
             Random random = new Random();
             for (int x = 0; x < width; x++) {
@@ -38,7 +36,7 @@ public class KMaze {
                     KNode KNode = new KNode(x, y);
                     // Randomly add walls while keeping essential paths clear
                     if (!essentialCells.contains(KNode) && !isBufferZone(x, y, playerSpawn, exit)) {
-                        grid[x][y] = (random.nextInt(4) < 3) ? 0 : 1;
+                        grid[x][y] = (random.nextInt(4) < 3) ? 0 : 1; // 75% chance to place a wall
                     }
                 }
             }
@@ -50,37 +48,36 @@ public class KMaze {
             // Check if there is a valid path from the player spawn to the exit
             List<KNode> pathToExit = findSolutionPath(playerSpawn.getX(), playerSpawn.getY(), exit);
 
-            validMaze = (pathToExit != null);
-        } while (!validMaze);}
+            validMaze = (pathToExit != null); // Repeat if no valid path is found
+        } while (!validMaze);
+    }
 
     // Helper method to define a buffer zone to prevent wall-locking around key points
     private boolean isBufferZone(int x, int y, KNode... KNodes) {
         for (KNode KNode : KNodes) {
             if (Math.abs(KNode.getX() - x) <= 1 && Math.abs(KNode.getY() - y) <= 1) {
-                return true;
+                return true; // Buffer zone around key points
             }
         }
         return false;
     }
-
-
 
     // Method to carve a path using Breadth-First Search (BFS)
     private Set<KNode> carvePathBFS(KNode start, KNode target) {
         Queue<KNode> queue = new LinkedList<>();
         Set<KNode> path = new HashSet<>();
         queue.add(start);
-        grid[start.getX()][start.getY()] = 0;
+        grid[start.getX()][start.getY()] = 0; // Mark the start position as open
 
         while (!queue.isEmpty()) {
             KNode current = queue.poll();
             path.add(current);
 
-            if (current.equals(target)) break;
+            if (current.equals(target)) break; // Stop if the target is reached
 
             for (KNode neighbor : getNeighbors(current)) {
                 if (grid[neighbor.getX()][neighbor.getY()] == 1) {
-                    grid[neighbor.getX()][neighbor.getY()] = 0;
+                    grid[neighbor.getX()][neighbor.getY()] = 0; // Carve the path
                     queue.add(neighbor);
                     path.add(neighbor);
                 }
@@ -97,7 +94,7 @@ public class KMaze {
             int newX = KNode.getX() + dir[0];
             int newY = KNode.getY() + dir[1];
             if (newX >= 0 && newY >= 0 && newX < width && newY < height) {
-                neighbors.add(new KNode(newX, newY));
+                neighbors.add(new KNode(newX, newY)); // Add valid neighbors
             }
         }
         return neighbors;
@@ -110,30 +107,30 @@ public class KMaze {
         KNode start = new KNode(startX, startY);
 
         queue.add(start);
-        cameFrom.put(start, null);
+        cameFrom.put(start, null); // Track the path
 
         while (!queue.isEmpty()) {
             KNode current = queue.poll();
 
             if (current.equals(target)) {
-                return reconstructPath(cameFrom, target);
+                return reconstructPath(cameFrom, target); // Reconstruct the path if target is reached
             }
 
             for (KNode neighbor : getNeighbors(current)) {
                 if (grid[neighbor.getX()][neighbor.getY()] == 0 && !cameFrom.containsKey(neighbor)) {
                     queue.add(neighbor);
-                    cameFrom.put(neighbor, current);
+                    cameFrom.put(neighbor, current); // Track the path
                 }
             }
         }
-        return null;
+        return null; // Return null if no path is found
     }
 
     // Method to reconstruct the path from the target node to the start node
     private List<KNode> reconstructPath(Map<KNode, KNode> cameFrom, KNode target) {
         List<KNode> path = new ArrayList<>();
         for (KNode KNode = target; KNode != null; KNode = cameFrom.get(KNode)) {
-            path.add(KNode);
+            path.add(KNode); // Reconstruct the path
         }
         Collections.reverse(path); // Reverse the path to get the correct order from start to target
         return path;
@@ -141,17 +138,17 @@ public class KMaze {
 
     // Method to check if a position is valid within the maze
     public boolean isValidPosition(int x, int y) {
-        return x >= 0 && y >= 0 && x < width && y < height && grid[x][y] == 0;
+        return x >= 0 && y >= 0 && x < width && y < height && grid[x][y] == 0; // Check if the position is within bounds and open
     }
 
     // Getter for the exit position
     public KNode getExitPosition() {
-        return new KNode(width - 1, 0);
+        return new KNode(width - 1, 0); // Exit is at the top-right corner
     }
 
     // Getter for the player spawn position
     public KNode getPlayerSpawn() {
-        return new KNode(0, 0);
+        return new KNode(0, 0); // Player spawns at the bottom-left corner
     }
 
     // Getter for the maze grid
